@@ -22,7 +22,7 @@ def main() -> None:
     print(nan_report)
 
     # 4) save cleaned dataframe
-    # df.to_csv(OUTPUT_PATH, index=False)
+    df.to_csv(OUTPUT_PATH, index=False)
     print(f"\nCleaned data saved to: {OUTPUT_PATH}")
 
 
