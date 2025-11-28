@@ -1,34 +1,10 @@
-#import libraries
-
 import pandas as pd
 
 
-#load the data
-CSV_PATH = "../data/raw_data/UrbanAirPollutionDataset.csv"
-OUTPUT_PATH = "../data/process_data/weather_stage1_loaded.csv"
-def load_data(csv_path: str = CSV_PATH) -> pd.DataFrame:
-    """
-    Load raw weather data from CSV.
-
-    Parameters
-    ----------
-    csv_path : str
-        Path to the raw CSV file.
-
-    Returns
-    -------
-    pd.DataFrame
-        Raw dataframe.
-    """
+#Read the raw CSV file from disk and return it as a pandas DataFrame
+def load_data(csv_path: str):  
     df_raw = pd.read_csv(csv_path)
     return df_raw
-
-#print("Shape raw:", df_raw.shape)
-#print("Columns raw:", list(df_raw.columns))
-
-#save the original columns name in python list
-
-#original_columns = df_raw.columns.tolist()
 
 NUM_COLS = [
     "temp_c",
@@ -41,10 +17,8 @@ NUM_COLS = [
     "pm10",
 ]
 
-def preprocess_data(df_raw: pd.DataFrame) -> pd.DataFrame:
-    """
-    Select, rename and clean columns of the raw dataframe.
-    """
+#Select, rename and clean the columns of the raw dataframe
+def preprocess_data(df_raw: pd.DataFrame):
 
     #select what we need
     cols = [
@@ -65,8 +39,6 @@ def preprocess_data(df_raw: pd.DataFrame) -> pd.DataFrame:
     df.columns = (
         df.columns
           .str.strip()
-          #.str.replace(r"\s+", "_", regex=True)
-          #.str.replace(r"[^0-9a-zA-Z_\.]", "", regex=True)
     )
 
     #rename the columns name
@@ -94,15 +66,12 @@ def preprocess_data(df_raw: pd.DataFrame) -> pd.DataFrame:
         if c in df.columns:
             df[c] = pd.to_numeric(df[c], errors='coerce')
 
-    #check for duplicated data
+    #Remove duplicated measurements for the same station and timestamp
     subset_dups = ['station_id', 'timestamp']
     df = df.drop_duplicates(subset=subset_dups, keep="last")
 
     return df
 
-
-def get_nan_report(df: pd.DataFrame) -> pd.Series:
-    """
-    Compute fraction of missing values for numeric columns.
-    """
+#Compute the fraction of missing values for each numeric column in NUM_COLS
+def get_nan_report(df: pd.DataFrame):
     return df[NUM_COLS].isna().mean()
