@@ -1,92 +1,214 @@
-Project overview
+Urban Air Quality – exploratory analysis
 
-This project analyzes air quality in Vienna using an open dataset from Kaggle that combines meteorological variables (temperature, rainfall, wind, humidity, pressure) with air pollution indicators (PM2.5 and PM10).
-The goal is to clean the raw data, build a reproducible analysis pipeline in Python, and answer a set of concrete questions about temporal patterns of pollution and its relationship with weather conditions.
+This repository contains my final project for the "Coding for Data Science and Data Management" course.
+The goal is to practise a small end-to-end data workflow on an air-pollution dataset:
+data loading, cleaning, exploratory analysis, visualisation, and a simple web app.
 
-The project is implemented in Python using pandas for data manipulation, numpy for numerical computations, and matplotlib/seaborn for visualization. All code and steps are organized so that the analysis can be rerun from raw data to final figures.
+Dataset used: UrbanAirNet – Urban Air Quality and Weather Dataset (Kaggle)
+Kaggle link: https://www.kaggle.com/datasets/ziya07/urbanairnet-urban-air-quality-and-weather-dataset
 
-Data
+The dataset provides hourly PM2.5, PM10 and basic meteorological variables
+(temperature, humidity, pressure, rain, wind speed) over one year.
 
-Source: Kaggle – urban air pollution and weather data for Vienna
+Project structure
 
-Main variables:
+Urban_air_quality/
+├─ data/
+│ ├─ raw_data/
+│ │ └─ UrbanAirPollutionDataset.csv # original Kaggle CSV (NOT in GitHub)
+│ └─ process_data/
+│ └─ weather_stage1_loaded.csv # cleaned dataset (tracked in GitHub)
+├─ notebooks/
+│ ├─ time_patterns.ipynb # PM patterns vs season, month, hour, weekday
+│ └─ weather_vs_pollution.ipynb # correlations, NumPy stats, scatter plots
+├─ output/
+│ └─ *.png # figures exported from the notebooks
+├─ src/
+│ ├─ data_process.py # functions for loading and cleaning data
+│ ├─ main.py # command-line cleaning pipeline
+│ └─ web_app.py # simple Streamlit dashboard
+├─ .gitignore
+├─ requirements.txt
+└─ README.md
 
-Meteorological: temp_c, rain_mm, humidity_pct, pressure_hpa, wind_speed_mps, wind_direction_deg
+The cleaned dataset data/process_data/weather_stage1_loaded.csv is included
+so the notebooks and the web app can run directly.
 
-Air quality: pm25, pm10
+The raw Kaggle CSV is not included.
+To fully reproduce the cleaning step, download the dataset from Kaggle and place:
 
-Time and station info: timestamp, station_id
+data/raw_data/UrbanAirPollutionDataset.csv
 
-Raw data are stored under data/raw_data/, and cleaned/processed data are written to data/process_data/ by the preprocessing scripts.
+If you only want to explore the results, you can use the cleaned file directly.
 
-Research questions
+Data processing (src/)
+data_process.py
 
-The analysis focuses on the following questions:
+Core data-processing functions:
 
-Seasonal and monthly patterns
+load_data(csv_path)
 
-In which months or seasons are PM2.5 and PM10 concentrations higher?
+read a CSV into a pandas DataFrame.
 
-Is there a clear seasonal pattern in air pollution levels?
+preprocess_data(df_raw)
 
-Meteorological drivers of pollution
+select relevant columns (station, timestamp, weather, PM2.5, PM10)
 
-How are PM2.5 and PM10 related to:
+clean and rename columns to snake_case
 
-air temperature (temp_c),
+parse timestamp and sort chronologically
 
-rainfall (rain_mm),
+convert numeric columns to numeric dtypes
 
-wind speed (wind_speed_mps)?
+drop duplicate rows for the same station and timestamp
 
-Do higher wind speeds or rainy conditions tend to reduce particulate pollution?
+get_nan_report(df)
 
-Daily cycle
+compute the fraction of missing values for the main numeric variables
+(temperature, rain, humidity, pressure, wind speed, PM2.5, PM10).
 
-How does pollution vary over the course of the day?
+File paths are not hard-coded here; they are passed in from main.py
+and web_app.py.
 
-Are PM levels higher during typical traffic hours (e.g. morning and evening)?
+main.py
 
-Weekday vs weekend
+Small linear pipeline:
 
-Are there systematic differences in pollution between weekdays and weekends, possibly linked to human activity and traffic?
+Load raw data from
+data/raw_data/UrbanAirPollutionDataset.csv (if present).
 
-(If the dataset contains multiple monitoring stations, we also compare average pollution levels between stations.)
+Clean and standardise the data with preprocess_data.
 
-Methods and workflow
+Print shapes of the raw and cleaned DataFrames.
 
-Data loading and cleaning
+Report the time coverage of the cleaned dataset.
 
-Load the raw Kaggle CSV.
+Print a NaN report using get_nan_report.
 
-Select relevant columns, standardize column names, parse timestamps, convert numeric fields, and remove duplicates (station_id + timestamp).
+Save the cleaned DataFrame to:
+data/process_data/weather_stage1_loaded.csv.
 
-Save a cleaned version of the dataset to data/process_data/weather_stage1_loaded.csv.
+Run from the project root:
 
-Descriptive statistics
+python src/main.py
 
-Compute basic statistics (mean, min, max, quantiles) for PM2.5, PM10 and meteorological variables.
+If the raw file is missing, you can still rely on the already-cleaned CSV
+included in the repo.
 
-Inspect completeness of the data (fraction of missing values).
+Exploratory analysis (notebooks/)
+1- time_patterns.ipynb
 
-Scientific computing
+Explores how PM2.5 and PM10 change across different time scales:
 
-Resample the time series to daily/monthly averages to study trends.
+create time features from timestamp:
 
-Group data by season, month, hour of day, and weekday/weekend to compare pollution levels across time scales.
+month, season, hour, weekday
 
-Compute correlation coefficients between meteorological variables and pollutants to quantify their relationships.
+compute average PM2.5 and PM10 by:
 
-Visualization
+season (Winter, Spring, Summer, Autumn)
 
-Time series plots of PM2.5 and PM10 to show temporal patterns.
+month (1–12)
 
-Scatter plots (e.g. PM2.5 vs temperature, wind speed, rainfall) to visualize relationships between weather and pollution.
+hour of day (0–23)
 
-Bar charts for mean pollution by season, hour of day, and weekday/weekend.
+day of week (0–6 → Monday–Sunday)
 
-Together, these steps provide a reproducible pipeline from raw data to cleaned data, numerical summaries, and visual insights about how air quality in Vienna varies over time and how it is influenced by meteorological conditions.
+visualise these patterns with bar and line plots.
 
-Note:
-The Kaggle dataset used in this project appears to be synthetic or pre-generated (it does not display typical monthly or seasonal variability found in real-world air quality measurements).
-Despite this limitation, a full data-analysis pipeline is implemented, including cleaning, scientific computations, and visualization techniques typically applied to real air-quality datasets.
+Several figures from this notebook are exported to output/.
+
+2- weather_vs_pollution.ipynb
+
+Examines relationships between weather and air pollution:
+
+select only weather + PM columns
+
+compute and inspect a correlation matrix
+
+use NumPy to:
+
+convert PM2.5 values to arrays,
+
+compute basic statistics (mean, standard deviation),
+
+build a PM2.5 / PM10 ratio with np.where
+
+create scatter plots:
+
+PM2.5 vs temperature
+
+PM2.5 and PM10 vs temperature
+
+PM2.5 / PM10 vs wind speed
+
+PM2.5 vs rain
+
+PM2.5 vs PM2.5/PM10 ratio
+
+The correlations are weak and the scatter plots do not show strong structure,
+which is consistent with a synthetic or heavily smoothed dataset.
+
+The focus is on relative patterns (how PM changes with time and weather),
+not on detailed health-risk assessment.
+
+Streamlit web app (src/web_app.py)
+
+A small Streamlit dashboard that reuses the functions from data_process.py.
+
+Data loading logic
+
+If data/process_data/weather_stage1_loaded.csv does not exist:
+
+load the raw CSV (if available),
+
+clean it with preprocess_data,
+
+save to data/process_data/weather_stage1_loaded.csv.
+
+If the cleaned file does exist (typical case in this repo):
+
+load it directly, parsing the timestamp column.
+
+Views
+
+Time-pattern view:
+
+preview of the cleaned dataset (df.head())
+
+PM2.5 and PM10 averages by season, month, hour and weekday
+
+Weather–pollution view:
+
+correlation matrix for weather + PM variables
+
+scatter plots of PM vs temperature, wind speed and rain
+
+Run from the project root:
+
+streamlit run src/web_app.py
+
+Requirements
+
+Main libraries:
+
+pandas – data manipulation and time handling
+
+numpy – basic numerical computations on PM values
+
+matplotlib – plots in the notebooks and in the Streamlit app
+
+streamlit – web app for interactive exploration
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+Notes
+
+The UrbanAirNet data from Kaggle are likely synthetic or strongly
+pre-processed; temporal patterns and weather–PM relationships are flatter than
+in real urban measurements.
+
+The cleaned file data/process_data/weather_stage1_loaded.csv is tracked in
+this repository and is enough to run the notebooks and the web app.
