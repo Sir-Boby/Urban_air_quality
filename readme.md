@@ -12,24 +12,28 @@ The dataset provides hourly PM2.5, PM10 and basic meteorological variables
 
 Project structure
 
+## Project structure
+
+```text
 Urban_air_quality/
 ├─ data/
-│ ├─ raw_data/
-│ │ └─ UrbanAirPollutionDataset.csv # original Kaggle CSV (NOT in GitHub)
-│ └─ process_data/
-│ └─ weather_stage1_loaded.csv # cleaned dataset (tracked in GitHub)
+│  ├─ raw_data/
+│  │   └─ UrbanAirPollutionDataset.csv   # original Kaggle CSV (NOT in GitHub)
+│  └─ process_data/
+│      └─ weather_stage1_loaded.csv      # cleaned dataset (tracked in GitHub)
 ├─ notebooks/
-│ ├─ time_patterns.ipynb # PM patterns vs season, month, hour, weekday
-│ └─ weather_vs_pollution.ipynb # correlations, NumPy stats, scatter plots
+│  ├─ time_patterns.ipynb        # PM patterns vs season, month, hour, weekday
+│  └─ weather_vs_pollution.ipynb # correlations, NumPy stats, scatter plots
 ├─ output/
-│ └─ *.png # figures exported from the notebooks
+│  └─ *.png                      # figures exported from the notebooks
 ├─ src/
-│ ├─ data_process.py # functions for loading and cleaning data
-│ ├─ main.py # command-line cleaning pipeline
-│ └─ web_app.py # simple Streamlit dashboard
+│  ├─ data_process.py            # functions for loading and cleaning data
+│  ├─ main.py                    # command-line cleaning pipeline
+│  └─ web_app.py                 # simple Streamlit dashboard
 ├─ .gitignore
 ├─ requirements.txt
 └─ README.md
+```
 
 The cleaned dataset data/process_data/weather_stage1_loaded.csv is included
 so the notebooks and the web app can run directly.
