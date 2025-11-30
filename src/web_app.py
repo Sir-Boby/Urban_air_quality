@@ -12,11 +12,7 @@ CSV_PATH = DATA_DIR / "raw_data" / "UrbanAirPollutionDataset.csv"
 OUTPUT_PATH = DATA_DIR / "process_data" / "weather_stage1_loaded.csv"
 
 
-def get_clean_data() -> pd.DataFrame:
-    """
-    Load the cleaned dataset. If it does not exist yet,
-    create it from the raw CSV using data_process.py.
-    """
+def get_clean_data():
     output_path = Path(OUTPUT_PATH)
 
     if not output_path.exists():
@@ -29,7 +25,7 @@ def get_clean_data() -> pd.DataFrame:
 
     return df_clean
 
-def show_time_patterns(df: pd.DataFrame) -> None:
+def show_time_patterns(df):
     st.subheader("Time patterns of PM2.5 and PM10")
 
     df = df.copy()
@@ -73,8 +69,7 @@ def show_time_patterns(df: pd.DataFrame) -> None:
     weekday_mean = df.groupby("weekday")[["pm25", "pm10"]].mean()
     st.line_chart(weekday_mean)
 
-
-def show_weather_relations(df: pd.DataFrame) -> None:
+def show_weather_relations(df):
     st.subheader("Weather vs air pollution")
 
     cols = [
@@ -123,58 +118,16 @@ def show_weather_relations(df: pd.DataFrame) -> None:
     plt.tight_layout()
     st.pyplot(fig)
 
-def main() -> None:
-    st.title("Urban Air Quality – demo")
+def main():
+    st.title("""Urban Air Quality
+    Design and develop : Mohammad Movahedinia
+    """)
 
     df = get_clean_data()
 
     st.write("Preview of the cleaned dataset:")
     st.dataframe(df.head())
+    show_time_patterns(df)
+    show_weather_relations(df)
 
-    # ---- time features ----
-    df = df.copy()
-    df["month"] = df["timestamp"].dt.month
-
-    def get_season(m: int) -> str:
-        if m in [12, 1, 2]:
-            return "Winter"
-        elif m in [3, 4, 5]:
-            return "Spring"
-        elif m in [6, 7, 8]:
-            return "Summer"
-        else:
-            return "Autumn"
-
-    df["season"] = df["month"].apply(get_season)
-    df["hour"] = df["timestamp"].dt.hour
-    df["weekday"] = df["timestamp"].dt.dayofweek  # 0 = Mon ... 6 = Sun
-
-    st.subheader("Average PM2.5 and PM10 by season")
-    season_mean = df.groupby("season")[["pm25", "pm10"]].mean()
-    st.dataframe(season_mean)
-
-    import matplotlib.pyplot as plt
-
-    fig, ax = plt.subplots(figsize=(6, 4))
-    season_mean.plot(kind="bar", ax=ax)
-    ax.set_ylabel("Concentration (µg/m³)")
-    ax.set_xlabel("Season")
-    ax.set_title("Average PM2.5 and PM10 by season")
-    plt.tight_layout()
-    st.pyplot(fig)
-
-    st.subheader("Monthly averages")
-    monthly_mean = df.groupby("month")[["pm25", "pm10"]].mean()
-    st.line_chart(monthly_mean)
-
-    st.subheader("Hourly averages")
-    hourly_mean = df.groupby("hour")[["pm25", "pm10"]].mean()
-    st.line_chart(hourly_mean)
-
-    st.subheader("Weekday averages (0 = Mon, 6 = Sun)")
-    weekday_mean = df.groupby("weekday")[["pm25", "pm10"]].mean()
-    st.line_chart(weekday_mean)
-
-
-if __name__ == "__main__":
-    main()
+main()
