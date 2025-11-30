@@ -1,4 +1,4 @@
-Urban Air Quality – exploratory analysis
+## Urban Air Quality – exploratory analysis
 
 This repository contains my final project for the "Coding for Data Science and Data Management" course.
 The goal is to practise a small end-to-end data workflow on an air-pollution dataset:
@@ -192,7 +192,7 @@ Run from the project root:
 
 streamlit run src/web_app.py
 
-Requirements
+## Requirements
 
 Main libraries:
 
@@ -208,7 +208,7 @@ Install dependencies:
 
 pip install -r requirements.txt
 
-Notes
+## Notes
 
 The UrbanAirNet data from Kaggle are likely synthetic or strongly
 pre-processed; temporal patterns and weather–PM relationships are flatter than

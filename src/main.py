@@ -40,4 +40,4 @@ def main():
     df.to_csv(OUTPUT_PATH, index=False)
     print(f"\nCleaned data saved to: {OUTPUT_PATH}")
 
-    main()
+main()      
